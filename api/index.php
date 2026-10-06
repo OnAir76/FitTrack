@@ -1488,8 +1488,8 @@ try {
             $check->execute([$date]);
             $existing = $check->fetch();
 
-            if (!$existing && $date !== $today) {
-                out(['error' => 'Możesz dodać nowy pomiar tylko na dzisiejszą datę. Istniejące wpisy można edytować.'], 422);
+            if ($date > $today) {
+                out(['error' => 'Nie można zapisywać pomiarów z przyszłych dat.'], 422);
             }
 
             $circumferenceFields = ['waist_cm', 'chest_cm', 'arm_cm', 'thigh_cm'];
