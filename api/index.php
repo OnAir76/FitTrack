@@ -263,6 +263,7 @@ try {
                         muscle_group,
                         exercise_type,
                         default_rest_seconds,
+                        default_duration_seconds,
                         notes,
                         is_archived,
                         created_at,
@@ -423,6 +424,7 @@ try {
             );
 
             $defaultRestSeconds = max(0, min(3600, (int)($data['default_rest_seconds'] ?? 90)));
+            $defaultDurationSeconds = max(1, min(3600, (int)($data['default_duration_seconds'] ?? 45)));
 
             $allowedTypes = [
                 'strength',
