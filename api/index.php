@@ -1325,140 +1325,59 @@ try {
 
     if ($resource === 'nutrition') {
 
-        /*
-        |--------------------------------------------------------------------------
-        | GET
-        |--------------------------------------------------------------------------
-        */
-
         if ($method === 'GET') {
-
-            $from =
-                $_GET['from']
-                ?? date('Y-m-01');
-
-            $to =
-                $_GET['to']
-                ?? date('Y-m-t');
-
-            $stmt = $pdo->prepare(
-                "
-                SELECT *
-                FROM nutrition_entries
-                WHERE
-                    entry_date
-                    BETWEEN ? AND ?
-                ORDER BY
-                    entry_date ASC
-                "
-            );
-
-            $stmt->execute([
-                $from,
-                $to
-            ]);
-
-            out(
-                $stmt->fetchAll()
-            );
+            $from = (string)($_GET['from'] ?? date('Y-m-01'));
+            $to = (string)($_GET['to'] ?? date('Y-m-t'));
+            $validFrom = DateTimeImmutable::createFromFormat('!Y-m-d', $from);
+            $validTo = DateTimeImmutable::createFromFormat('!Y-m-d', $to);
+            if (!$validFrom || !$validTo || $validFrom->format('Y-m-d') !== $from || $validTo->format('Y-m-d') !== $to || $from > $to) {
+                out(['error' => 'Nieprawidłowy zakres dat.'], 422);
+            }
+            $stmt = $pdo->prepare("SELECT * FROM nutrition_entries WHERE entry_date BETWEEN ? AND ? ORDER BY entry_date ASC");
+            $stmt->execute([$from, $to]);
+            out($stmt->fetchAll());
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | POST
-        |--------------------------------------------------------------------------
-        */
-
         if ($method === 'POST') {
-
             $data = input();
+            $date = (string)requireField($data, 'entry_date');
+            $parsedDate = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+            if (!$parsedDate || $parsedDate->format('Y-m-d') !== $date) {
+                out(['error' => 'Nieprawidłowa data wpisu.'], 422);
+            }
+            $today = (new DateTimeImmutable('now', new DateTimeZone('Europe/Warsaw')))->format('Y-m-d');
+            if ($date > $today) {
+                out(['error' => 'Nie można zapisywać danych z przyszłych dat.'], 422);
+            }
 
-            $date =
-                requireField(
-                    $data,
-                    'entry_date'
-                );
+            $check = $pdo->prepare("SELECT id FROM nutrition_entries WHERE entry_date = ? LIMIT 1");
+            $check->execute([$date]);
+            $existingId = $check->fetchColumn();
 
-            $stmt = $pdo->prepare(
-                "
-                INSERT INTO nutrition_entries
-                (
-                    entry_date,
-                    calories,
-                    protein_g,
-                    carbs_g,
-                    fats_g,
-                    steps,
-                    burned_calories,
-                    notes
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            $values = [
+                (int)($data['calories'] ?? 0),
+                (float)($data['protein_g'] ?? 0),
+                (float)($data['carbs_g'] ?? 0),
+                (float)($data['fats_g'] ?? 0),
+                isset($data['steps']) && $data['steps'] !== '' ? (int)$data['steps'] : null,
+                isset($data['burned_calories']) && $data['burned_calories'] !== '' ? (int)$data['burned_calories'] : null,
+                trim((string)($data['notes'] ?? ''))
+            ];
+            foreach (array_slice($values, 0, 6) as $value) {
+                if ($value !== null && (!is_numeric($value) || $value < 0)) {
+                    out(['error' => 'Wartości kalorii, makro, kroków i spalania nie mogą być ujemne.'], 422);
+                }
+            }
 
-                ON DUPLICATE KEY UPDATE
-                    calories =
-                        VALUES(calories),
+            if ($existingId !== false) {
+                $stmt = $pdo->prepare("UPDATE nutrition_entries SET calories = ?, protein_g = ?, carbs_g = ?, fats_g = ?, steps = ?, burned_calories = ?, notes = ? WHERE entry_date = ?");
+                $stmt->execute([...$values, $date]);
+                out(['message' => 'Wpis żywieniowy został zaktualizowany.', 'updated' => true, 'entry_date' => $date]);
+            }
 
-                    protein_g =
-                        VALUES(protein_g),
-
-                    carbs_g =
-                        VALUES(carbs_g),
-
-                    fats_g =
-                        VALUES(fats_g),
-
-                    steps =
-                        VALUES(steps),
-
-                    burned_calories =
-                        VALUES(burned_calories),
-
-                    notes =
-                        VALUES(notes)
-                "
-            );
-
-            $stmt->execute([
-                $date,
-
-                (int)(
-                    $data['calories']
-                    ?? 0
-                ),
-
-                (float)(
-                    $data['protein_g']
-                    ?? 0
-                ),
-
-                (float)(
-                    $data['carbs_g']
-                    ?? 0
-                ),
-
-                (float)(
-                    $data['fats_g']
-                    ?? 0
-                ),
-
-                isset($data['steps'])
-                    ? (int)$data['steps']
-                    : null,
-
-                isset(
-                    $data['burned_calories']
-                )
-                    ? (int)$data['burned_calories']
-                    : null,
-
-                $data['notes']
-                    ?? null
-            ]);
-
-            out([
-                'message' =>
-                    'Wpis żywieniowy został zapisany.'
-            ]);
+            $stmt = $pdo->prepare("INSERT INTO nutrition_entries (entry_date, calories, protein_g, carbs_g, fats_g, steps, burned_calories, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$date, ...$values]);
+            out(['message' => 'Wpis żywieniowy został zapisany.', 'updated' => false, 'entry_date' => $date], 201);
         }
     }
 
