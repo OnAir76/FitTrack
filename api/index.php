@@ -1483,7 +1483,7 @@ try {
                 out(['error' => 'Nieprawidłowa data pomiaru.'], 422);
             }
 
-            $today = date('Y-m-d');
+            $today = (new DateTimeImmutable('now', new DateTimeZone('Europe/Warsaw')))->format('Y-m-d');
             $check = $pdo->prepare("SELECT * FROM body_measurements WHERE measurement_date = ?");
             $check->execute([$date]);
             $existing = $check->fetch();
@@ -1505,8 +1505,8 @@ try {
             }
 
             $weight = $data['weight_kg'] ?? ($existing['weight_kg'] ?? null);
-            if ($weight !== null && (!is_numeric($weight) || (float)$weight < 20 || (float)$weight > 400)) {
-                out(['error' => 'Podaj prawidłową masę ciała.'], 422);
+            if ($weight === null || $weight === '' || !is_numeric($weight) || (float)$weight < 20 || (float)$weight > 400) {
+                out(['error' => 'Masa ciała jest wymagana. Podaj prawidłową wartość w kg.'], 422);
             }
 
             $values = [];
