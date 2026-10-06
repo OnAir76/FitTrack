@@ -1470,107 +1470,69 @@ try {
 
     if ($resource === 'measurements') {
 
-        /*
-        |--------------------------------------------------------------------------
-        | GET
-        |--------------------------------------------------------------------------
-        */
-
         if ($method === 'GET') {
-
-            $stmt = $pdo->query(
-                "
-                SELECT *
-                FROM body_measurements
-                ORDER BY
-                    measurement_date DESC
-                "
-            );
-
-            out(
-                $stmt->fetchAll()
-            );
+            $stmt = $pdo->query("SELECT * FROM body_measurements ORDER BY measurement_date DESC");
+            out($stmt->fetchAll());
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | POST
-        |--------------------------------------------------------------------------
-        */
 
         if ($method === 'POST') {
-
             $data = input();
+            $date = (string)requireField($data, 'measurement_date');
+            $parsedDate = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+            if (!$parsedDate || $parsedDate->format('Y-m-d') !== $date) {
+                out(['error' => 'Nieprawidłowa data pomiaru.'], 422);
+            }
 
-            $date =
-                requireField(
-                    $data,
-                    'measurement_date'
-                );
+            $today = date('Y-m-d');
+            $check = $pdo->prepare("SELECT * FROM body_measurements WHERE measurement_date = ?");
+            $check->execute([$date]);
+            $existing = $check->fetch();
 
-            $stmt = $pdo->prepare(
-                "
+            if (!$existing && $date !== $today) {
+                out(['error' => 'Możesz dodać nowy pomiar tylko na dzisiejszą datę. Istniejące wpisy można edytować.'], 422);
+            }
+
+            $circumferenceFields = ['waist_cm', 'chest_cm', 'arm_cm', 'thigh_cm'];
+            $hasCircumference = false;
+            foreach ($circumferenceFields as $field) {
+                if (isset($data[$field]) && $data[$field] !== '') {
+                    $hasCircumference = true;
+                    break;
+                }
+            }
+            if ($hasCircumference && (int)$parsedDate->format('N') !== 5) {
+                out(['error' => 'Obwody można zapisywać wyłącznie w piątek.'], 422);
+            }
+
+            $weight = $data['weight_kg'] ?? ($existing['weight_kg'] ?? null);
+            if ($weight !== null && (!is_numeric($weight) || (float)$weight < 20 || (float)$weight > 400)) {
+                out(['error' => 'Podaj prawidłową masę ciała.'], 422);
+            }
+
+            $values = [];
+            foreach ($circumferenceFields as $field) {
+                $value = $data[$field] ?? ($existing[$field] ?? null);
+                if ($value !== null && $value !== '' && (!is_numeric($value) || (float)$value <= 0)) {
+                    out(['error' => 'Wartość obwodu musi być większa od zera.'], 422);
+                }
+                $values[$field] = ($value === '') ? null : $value;
+            }
+
+            $stmt = $pdo->prepare("
                 INSERT INTO body_measurements
-                (
-                    measurement_date,
-                    weight_kg,
-                    waist_cm,
-                    chest_cm,
-                    arm_cm,
-                    thigh_cm
-                )
+                (measurement_date, weight_kg, waist_cm, chest_cm, arm_cm, thigh_cm)
                 VALUES (?, ?, ?, ?, ?, ?)
-
                 ON DUPLICATE KEY UPDATE
-
-                    weight_kg =
-                        VALUES(weight_kg),
-
-                    waist_cm =
-                        VALUES(waist_cm),
-
-                    chest_cm =
-                        VALUES(chest_cm),
-
-                    arm_cm =
-                        VALUES(arm_cm),
-
-                    thigh_cm =
-                        VALUES(thigh_cm)
-                "
-            );
-
-            $stmt->execute([
-                $date,
-
-                $data['weight_kg']
-                    ?? null,
-
-                $data['waist_cm']
-                    ?? null,
-
-                $data['chest_cm']
-                    ?? null,
-
-                $data['arm_cm']
-                    ?? null,
-
-                $data['thigh_cm']
-                    ?? null
-            ]);
-
-            out([
-                'message' =>
-                    'Pomiar został zapisany.'
-            ]);
+                    weight_kg = VALUES(weight_kg),
+                    waist_cm = VALUES(waist_cm),
+                    chest_cm = VALUES(chest_cm),
+                    arm_cm = VALUES(arm_cm),
+                    thigh_cm = VALUES(thigh_cm)
+            ");
+            $stmt->execute([$date, $weight, $values['waist_cm'], $values['chest_cm'], $values['arm_cm'], $values['thigh_cm']]);
+            out(['message' => 'Pomiar został zapisany.', 'measurement_date' => $date, 'updated' => (bool)$existing]);
         }
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SETTINGS
-    |--------------------------------------------------------------------------
-    */
 
     if ($resource === 'settings') {
 
