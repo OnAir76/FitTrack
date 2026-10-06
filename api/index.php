@@ -230,6 +230,7 @@ try {
                         name,
                         muscle_group,
                         exercise_type,
+                        default_rest_seconds,
                         notes,
                         is_archived,
                         created_at,
@@ -260,6 +261,7 @@ try {
                         name,
                         muscle_group,
                         exercise_type,
+                        default_rest_seconds,
                         notes,
                         is_archived,
                         created_at,
@@ -311,6 +313,8 @@ try {
                 )
             );
 
+            $defaultRestSeconds = max(0, min(3600, (int)($data['default_rest_seconds'] ?? 90)));
+
             /*
             |--------------------------------------------------------------------------
             | Walidacja typu ćwiczenia
@@ -350,9 +354,10 @@ try {
                     name,
                     muscle_group,
                     exercise_type,
+                    default_rest_seconds,
                     notes
                 )
-                VALUES (?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?)
                 "
             );
 
@@ -360,6 +365,7 @@ try {
                 $name,
                 $muscleGroup,
                 $exerciseType,
+                $defaultRestSeconds,
                 $notes
             ]);
 
@@ -412,6 +418,8 @@ try {
                 )
             );
 
+            $defaultRestSeconds = max(0, min(3600, (int)($data['default_rest_seconds'] ?? 90)));
+
             $allowedTypes = [
                 'strength',
                 'bodyweight',
@@ -439,6 +447,7 @@ try {
                     name = ?,
                     muscle_group = ?,
                     exercise_type = ?,
+                    default_rest_seconds = ?,
                     notes = ?
                 WHERE id = ?
                 "
@@ -448,6 +457,7 @@ try {
                 $name,
                 $muscleGroup,
                 $exerciseType,
+                $defaultRestSeconds,
                 $notes,
                 $id
             ]);
