@@ -6,7 +6,7 @@
 </head>
 <body class="bg-slate-50 text-slate-900">
 <main class="mx-auto max-w-3xl px-4 pb-28 pt-6 space-y-6">
-<header><a class="text-sm font-bold text-slate-500" href="/trainingapp/">← FitTrack</a><h1 class="mt-2 text-3xl font-black">Dieta i makro</h1><p class="mt-1 text-slate-500">Wybierz dzień w kalendarzu, aby dodać lub edytować kalorie, makro i dane z zegarka.</p></header>
+<header><a class="text-sm font-bold text-slate-500" href="/trainingapp/index.php">← FitTrack</a><h1 class="mt-2 text-3xl font-black">Dieta i makro</h1><p class="mt-1 text-slate-500">Wybierz dzień w kalendarzu, aby dodać lub edytować kalorie, makro i dane z zegarka.</p></header>
 <section class="grid grid-cols-2 gap-3"><div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200"><p class="text-sm text-slate-500">Cel kalorii</p><p id="goalCal" class="mt-1 text-2xl font-black">—</p></div><div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200"><p class="text-sm text-slate-500">Cel białka</p><p id="goalProtein" class="mt-1 text-2xl font-black">—</p></div></section>
 <section class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 space-y-4">
 <div><h2 class="text-xl font-bold">Kalendarz diety</h2><p class="text-sm text-slate-500">Wybierz datę. Dni z zapisanym wpisem są oznaczone kropką. Jeden wpis na dzień — możesz go później edytować.</p></div>
@@ -31,7 +31,7 @@
 </form></section>
 <section class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 space-y-3"><div class="flex items-center justify-between gap-3"><h2 class="text-xl font-bold">Historia wpisów</h2><p id="historyCount" class="text-sm text-slate-500"></p></div><div id="history" class="space-y-3">Ładowanie…</div></section>
 </main>
-<nav class="fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 backdrop-blur"><div class="mx-auto grid max-w-3xl grid-cols-5 text-center text-xs font-bold"><a class="p-3" href="/trainingapp/">⌂<br>Home</a><a class="p-3 text-slate-500" href="/trainingapp/calendar.php">▦<br>Kalendarz</a><a class="p-3 text-slate-500" href="/trainingapp/workouts.php">◈<br>Treningi</a><a class="p-3 text-slate-500" href="/trainingapp/progress.php">↗<br>Progres</a><a class="p-3" href="/trainingapp/nutrition.php">◉<br>Dieta</a></div></nav>
+<nav class="fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 backdrop-blur"><div class="mx-auto grid max-w-3xl grid-cols-5 text-center text-xs font-bold"><a class="p-3" href="/trainingapp/index.php">⌂<br>Home</a><a class="p-3 text-slate-500" href="/trainingapp/calendar.php">▦<br>Kalendarz</a><a class="p-3 text-slate-500" href="/trainingapp/workouts.php">◈<br>Treningi</a><a class="p-3 text-slate-500" href="/trainingapp/progress.php">↗<br>Progres</a><a class="p-3" href="/trainingapp/nutrition.php">◉<br>Dieta</a></div></nav>
 <script>
 const API='/trainingapp/api';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
