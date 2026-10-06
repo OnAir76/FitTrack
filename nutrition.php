@@ -70,8 +70,8 @@ async function loadMonth(){
  rows=await api('nutrition?from='+month+'-01&to='+month+'-'+pad(new Date(y,m,0).getDate()));
  renderHistory();renderCalendar();setFormRecord(selectedDate,dateRecord(selectedDate));
 }
-document.querySelector('#prevMonth').onclick=async()=>{calendarMonth=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()-1,1);await loadMonth()};
-document.querySelector('#nextMonth').onclick=async()=>{const next=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()+1,1),max=new Date(today.slice(0,7)+'-01T12:00:00');if(next<=max){calendarMonth=next;await loadMonth()}};
+document.querySelector('#prevMonth').onclick=async()=>{calendarMonth=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()-1,1);selectedDate=calendarMonth.getFullYear()+'-'+pad(calendarMonth.getMonth()+1)+'-01';await loadMonth()};
+document.querySelector('#nextMonth').onclick=async()=>{const next=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()+1,1),max=new Date(today.slice(0,7)+'-01T12:00:00');if(next<=max){calendarMonth=next;selectedDate=next.getFullYear()+'-'+pad(next.getMonth()+1)+'-01';if(selectedDate.slice(0,7)===today.slice(0,7))selectedDate=today;await loadMonth()}};
 document.querySelector('#cancelEdit').onclick=async()=>{selectedDate=today;calendarMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);await loadMonth();window.scrollTo({top:0,behavior:'smooth'})};
 document.querySelector('#form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),body=Object.fromEntries(f.entries());for(const k of ['calories','protein_g','carbs_g','fats_g','steps','burned_calories'])body[k]=body[k]===''?null:Number(body[k]);try{const result=await api('nutrition',{method:'POST',body:JSON.stringify(body)});document.querySelector('#notice').textContent=result.updated?'Zmiany zostały zapisane.':'Wpis został zapisany.';document.querySelector('#notice').className='col-span-2 text-sm text-emerald-700';await loadMonth();}catch(err){showError(err)}};
 loadMonth().catch(showError);
