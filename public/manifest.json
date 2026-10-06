@@ -1,9 +1,9 @@
 {
-  "id": "/trainingapp/",
+  "id": "/trainingapp/index.php",
   "name": "FitTrack",
   "short_name": "FitTrack",
   "description": "Trening, odżywianie i progres w jednym miejscu.",
-  "start_url": "/trainingapp/",
+  "start_url": "/trainingapp/index.php",
   "scope": "/trainingapp/",
   "display": "standalone",
   "orientation": "portrait",
