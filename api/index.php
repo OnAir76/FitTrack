@@ -1193,6 +1193,104 @@ try {
 
     /*
     |--------------------------------------------------------------------------
+    | WORKOUT SESSIONS - aktywny trening, serie i historia
+    |--------------------------------------------------------------------------
+    */
+    if ($resource === 'workout-sessions') {
+        if ($method === 'GET') {
+            $limit = max(1, min(100, (int)($_GET['limit'] ?? 30)));
+            $stmt = $pdo->query("
+                SELECT ws.*, COUNT(DISTINCT wse.id) AS exercise_count,
+                    COUNT(wset.id) AS set_count
+                FROM workout_sessions ws
+                LEFT JOIN workout_session_exercises wse ON wse.workout_session_id = ws.id
+                LEFT JOIN workout_sets wset ON wset.workout_session_exercise_id = wse.id
+                GROUP BY ws.id
+                ORDER BY ws.started_at DESC
+                LIMIT " . $limit
+            );
+            out($stmt->fetchAll());
+        }
+
+        if ($method === 'POST') {
+            $data = input();
+            $templateId = !empty($data['workout_template_id']) ? (int)$data['workout_template_id'] : null;
+            $scheduledId = !empty($data['scheduled_workout_id']) ? (int)$data['scheduled_workout_id'] : null;
+            $name = trim((string)($data['workout_name_snapshot'] ?? 'Trening'));
+            if ($templateId === null && $scheduledId !== null) {
+                $lookup = $pdo->prepare("SELECT workout_template_id FROM scheduled_workouts WHERE id = ?");
+                $lookup->execute([$scheduledId]);
+                $found = $lookup->fetch();
+                if ($found && $found['workout_template_id']) $templateId = (int)$found['workout_template_id'];
+            }
+            $pdo->beginTransaction();
+            try {
+                $stmt = $pdo->prepare("INSERT INTO workout_sessions (scheduled_workout_id, workout_template_id, workout_name_snapshot, started_at) VALUES (?, ?, ?, NOW())");
+                $stmt->execute([$scheduledId, $templateId, $name]);
+                $sessionId = (int)$pdo->lastInsertId();
+                if ($templateId !== null) {
+                    $stmt = $pdo->prepare("
+                        INSERT INTO workout_session_exercises
+                        (workout_session_id, exercise_id, exercise_name_snapshot, position, sets_target, min_reps_target, max_reps_target, target_rir, rest_seconds, tempo)
+                        SELECT ?, e.id, e.name, wte.position, wte.sets_count, wte.min_reps, wte.max_reps, wte.target_rir, wte.rest_seconds, wte.tempo
+                        FROM workout_template_exercises wte
+                        JOIN exercises e ON e.id = wte.exercise_id
+                        WHERE wte.workout_template_id = ?
+                        ORDER BY wte.position
+                    ");
+                    $stmt->execute([$sessionId, $templateId]);
+                }
+                $pdo->commit();
+                out(['id' => $sessionId, 'message' => 'Trening rozpoczęty.'], 201);
+            } catch (Throwable $e) {
+                $pdo->rollBack();
+                throw $e;
+            }
+        }
+
+        if ($method === 'PUT' && isset($parts[1])) {
+            $sessionId = (int)$parts[1];
+            $stmt = $pdo->prepare("UPDATE workout_sessions SET ended_at = NOW(), duration_seconds = TIMESTAMPDIFF(SECOND, started_at, NOW()), notes = COALESCE(?, notes) WHERE id = ? AND ended_at IS NULL");
+            $data = input();
+            $stmt->execute([$data['notes'] ?? null, $sessionId]);
+            $pdo->prepare("UPDATE scheduled_workouts SET status = 'completed' WHERE id = (SELECT scheduled_workout_id FROM workout_sessions WHERE id = ?)")->execute([$sessionId]);
+            out(['message' => 'Trening zakończony.']);
+        }
+
+        if ($method === 'POST' && isset($parts[1]) && ($parts[2] ?? '') === 'sets') {
+            $sessionId = (int)$parts[1];
+            $data = input();
+            $exerciseSessionId = (int)requireField($data, 'workout_session_exercise_id');
+            $check = $pdo->prepare("SELECT id FROM workout_session_exercises WHERE id = ? AND workout_session_id = ?");
+            $check->execute([$exerciseSessionId, $sessionId]);
+            if (!$check->fetch()) out(['error' => 'Ćwiczenie nie należy do tego treningu.'], 422);
+            $setNumber = max(1, (int)requireField($data, 'set_number'));
+            $weight = max(0, (float)($data['weight_kg'] ?? 0));
+            $reps = max(0, (int)requireField($data, 'reps'));
+            $rir = isset($data['rir']) && $data['rir'] !== '' ? (float)$data['rir'] : null;
+            $stmt = $pdo->prepare("INSERT INTO workout_sets (workout_session_exercise_id, set_number, weight_kg, reps, rir) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE weight_kg = VALUES(weight_kg), reps = VALUES(reps), rir = VALUES(rir), completed_at = NOW()");
+            $stmt->execute([$exerciseSessionId, $setNumber, $weight, $reps, $rir]);
+            out(['message' => 'Seria zapisana.'], 201);
+        }
+
+        if ($method === 'GET' && isset($parts[1])) {
+            $sessionId = (int)$parts[1];
+            $stmt = $pdo->prepare("SELECT * FROM workout_sessions WHERE id = ?");
+            $stmt->execute([$sessionId]);
+            $session = $stmt->fetch();
+            if (!$session) out(['error' => 'Nie znaleziono treningu.'], 404);
+            $stmt = $pdo->prepare("SELECT wse.*, COALESCE(e.muscle_group, '') AS muscle_group FROM workout_session_exercises wse LEFT JOIN exercises e ON e.id = wse.exercise_id WHERE wse.workout_session_id = ? ORDER BY wse.position");
+            $stmt->execute([$sessionId]);
+            $session['exercises'] = $stmt->fetchAll();
+            $stmt = $pdo->prepare("SELECT wset.* FROM workout_sets wset JOIN workout_session_exercises wse ON wse.id = wset.workout_session_exercise_id WHERE wse.workout_session_id = ? ORDER BY wse.position, wset.set_number");
+            $stmt->execute([$sessionId]);
+            $session['sets'] = $stmt->fetchAll();
+            out($session);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | NUTRITION
     |--------------------------------------------------------------------------
     */
