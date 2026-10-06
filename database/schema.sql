@@ -7,6 +7,7 @@ CREATE TABLE exercises (
     name VARCHAR(150) NOT NULL,
     muscle_group VARCHAR(80) NULL,
     exercise_type ENUM('strength','bodyweight','time') NOT NULL DEFAULT 'strength',
+    default_rest_seconds INT UNSIGNED NOT NULL DEFAULT 90,
     notes TEXT NULL,
     is_archived TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
