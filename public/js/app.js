@@ -33,7 +33,7 @@ async function renderHome() {
             card=`<section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
                 <p class="text-sm font-semibold text-slate-500">DZISIAJ</p>
                 <h2 class="mt-2 text-2xl font-bold">Brak zaplanowanego treningu</h2>
-                <a href="/calendar.php" class="mt-5 inline-flex rounded-2xl bg-slate-900 px-5 py-3 font-bold text-white">Otwórz kalendarz</a>
+                <a href="/trainingapp/calendar.php" class="mt-5 inline-flex rounded-2xl bg-slate-900 px-5 py-3 font-bold text-white">Otwórz kalendarz</a>
             </section>`;
         } else if(today.status==='rest') {
             card=`<section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
@@ -45,7 +45,7 @@ async function renderHome() {
                 <p class="text-sm font-semibold text-slate-400">DZISIAJ</p>
                 <h2 class="mt-2 text-3xl font-black">${escapeHtml(today.workout_name)}</h2>
                 <p class="mt-2 text-slate-400">${today.exercises.length} ćwiczeń</p>
-                <a href="/workout.php?scheduled_id=${today.id}" class="mt-6 flex justify-center rounded-2xl bg-white px-5 py-4 font-bold text-slate-900">ROZPOCZNIJ TRENING</a>
+                <a href="/trainingapp/workout.php?scheduled_id=${today.id}" class="mt-6 flex justify-center rounded-2xl bg-white px-5 py-4 font-bold text-slate-900">ROZPOCZNIJ TRENING</a>
             </section>`;
         }
 
