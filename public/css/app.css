@@ -1,0 +1,4 @@
+html { -webkit-tap-highlight-color: transparent; }
+body { min-height: 100vh; }
+button, a, input, select { touch-action: manipulation; }
+input, select { font-size: 16px; }
