@@ -1,0 +1,9 @@
+{
+  "name": "FitTrack",
+  "short_name": "FitTrack",
+  "start_url": "/trainingapp/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "lang": "pl"
+}
