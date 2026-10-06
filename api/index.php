@@ -1297,6 +1297,7 @@ try {
                     WHERE prev_ex.exercise_id = ?
                       AND ws.id <> ?
                       AND ws.ended_at IS NOT NULL
+                      AND ws.workout_template_id <=> ?
                       AND ws.started_at = (
                           SELECT MAX(ws2.started_at)
                           FROM workout_sessions ws2
@@ -1304,10 +1305,11 @@ try {
                           WHERE pe2.exercise_id = prev_ex.exercise_id
                             AND ws2.id <> ?
                             AND ws2.ended_at IS NOT NULL
+                            AND ws2.workout_template_id <=> ?
                       )
                     ORDER BY wset.set_number
                 ");
-                $previousStmt->execute([$exercise['exercise_id'], $sessionId, $sessionId]);
+                $previousStmt->execute([$exercise['exercise_id'], $sessionId, $session['workout_template_id'], $sessionId, $session['workout_template_id']]);
                 $exercise['previous_sets'] = $previousStmt->fetchAll();
             }
             unset($exercise);
