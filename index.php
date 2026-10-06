@@ -15,7 +15,7 @@
 </main>
 <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur">
 <div class="mx-auto grid max-w-3xl grid-cols-5">
-<a href="/trainingapp" class="flex flex-col items-center gap-1 px-2 py-3 text-xs font-bold">⌂<span>Home</span></a>
+<a href="/trainingapp/index.php" class="flex flex-col items-center gap-1 px-2 py-3 text-xs font-bold">⌂<span>Home</span></a>
 <a href="/trainingapp/calendar.php" class="flex flex-col items-center gap-1 px-2 py-3 text-xs text-slate-500">▦<span>Kalendarz</span></a>
 <a href="/trainingapp/workouts.php" class="flex flex-col items-center gap-1 px-2 py-3 text-xs text-slate-500">◈<span>Treningi</span></a>
 <a href="/trainingapp/progress.php" class="flex flex-col items-center gap-1 px-2 py-3 text-xs text-slate-500">↗<span>Progres</span></a>
