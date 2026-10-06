@@ -1197,7 +1197,7 @@ try {
     |--------------------------------------------------------------------------
     */
     if ($resource === 'workout-sessions') {
-        if ($method === 'GET') {
+        if ($method === 'GET' && !isset($parts[1])) {
             $limit = max(1, min(100, (int)($_GET['limit'] ?? 30)));
             $stmt = $pdo->query("
                 SELECT ws.*, COUNT(DISTINCT wse.id) AS exercise_count,
@@ -1212,7 +1212,7 @@ try {
             out($stmt->fetchAll());
         }
 
-        if ($method === 'POST') {
+        if ($method === 'POST' && !isset($parts[1])) {
             $data = input();
             $templateId = !empty($data['workout_template_id']) ? (int)$data['workout_template_id'] : null;
             $scheduledId = !empty($data['scheduled_workout_id']) ? (int)$data['scheduled_workout_id'] : null;
