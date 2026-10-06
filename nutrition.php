@@ -6,7 +6,7 @@
 </head>
 <body class="bg-slate-50 text-slate-900">
 <main class="mx-auto max-w-3xl px-4 pb-28 pt-6 space-y-6">
-<header><a class="text-sm font-bold text-slate-500" href="/trainingapp/">← FitTrack</a><h1 class="mt-2 text-3xl font-black">Dieta i makro</h1><p class="mt-1 text-slate-500">Wybierz dzień w kalendarzu, aby dodać lub edytować kalorie, makro, kroki i dane z zegarka.</p></header>
+<header><a class="text-sm font-bold text-slate-500" href="/trainingapp/">← FitTrack</a><h1 class="mt-2 text-3xl font-black">Dieta i makro</h1><p class="mt-1 text-slate-500">Wybierz dzień w kalendarzu, aby dodać lub edytować kalorie, makro i dane z zegarka.</p></header>
 <section class="grid grid-cols-2 gap-3"><div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200"><p class="text-sm text-slate-500">Cel kalorii</p><p id="goalCal" class="mt-1 text-2xl font-black">—</p></div><div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200"><p class="text-sm text-slate-500">Cel białka</p><p id="goalProtein" class="mt-1 text-2xl font-black">—</p></div></section>
 <section class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 space-y-4">
 <div><h2 class="text-xl font-bold">Kalendarz diety</h2><p class="text-sm text-slate-500">Wybierz datę. Dni z zapisanym wpisem są oznaczone kropką. Jeden wpis na dzień — możesz go później edytować.</p></div>
@@ -23,7 +23,6 @@
 <label class="text-sm font-semibold">Białko (g)<input name="protein_g" type="number" min="0" step="0.1" value="0" class="mt-1 w-full rounded-xl border p-3"></label>
 <label class="text-sm font-semibold">Węglowodany (g)<input name="carbs_g" type="number" min="0" step="0.1" value="0" class="mt-1 w-full rounded-xl border p-3"></label>
 <label class="text-sm font-semibold">Tłuszcze (g)<input name="fats_g" type="number" min="0" step="0.1" value="0" class="mt-1 w-full rounded-xl border p-3"></label>
-<label class="text-sm font-semibold">Kroki<input name="steps" type="number" min="0" value="0" class="mt-1 w-full rounded-xl border p-3"></label>
 <label class="text-sm font-semibold">Spalone kcal z zegarka<input name="burned_calories" type="number" min="0" value="0" class="mt-1 w-full rounded-xl border p-3"><span class="mt-1 block text-xs font-normal text-slate-500">Wpisuj konsekwentnie ten sam typ danych: kalorie całkowite albo aktywne.</span></label>
 <label class="col-span-2 text-sm font-semibold">Notatka<textarea name="notes" rows="2" class="mt-1 w-full rounded-xl border p-3"></textarea></label>
 <button id="saveButton" class="col-span-2 rounded-xl bg-slate-900 p-3 font-bold text-white">Zapisz dzień</button>
@@ -45,7 +44,7 @@ function dateRecord(date){return rows.find(x=>x.entry_date===date)||null}
 function showError(e){const n=document.querySelector('#notice');n.textContent=e.message;n.className='col-span-2 text-sm text-red-600'}
 function setFormRecord(date,record=dateRecord(date)){
  selectedDate=date;document.querySelector('#entryDate').value=date;
- for(const k of ['calories','protein_g','carbs_g','fats_g','steps','burned_calories','notes'])document.querySelector('[name="'+k+'"]').value=record?.[k]??(k==='notes'?'':0);
+ for(const k of ['calories','protein_g','carbs_g','fats_g','burned_calories','notes'])document.querySelector('[name="'+k+'"]').value=record?.[k]??(k==='notes'?'':0);
  const future=date>today;document.querySelector('#saveButton').textContent=record?'Zapisz zmiany':'Zapisz dzień';document.querySelector('#saveButton').disabled=future;document.querySelector('#saveButton').classList.toggle('opacity-50',future);document.querySelector('#cancelEdit').classList.toggle('hidden',date===today);
  const status=document.querySelector('#dayStatus');status.textContent=record?'Wpis dla '+date+' jest już zapisany. Możesz edytować wartości — nie powstanie drugi wpis.':(future?'Nie można zapisywać danych z przyszłych dat.':'Brak wpisu dla '+date+'. Wypełnij formularz, aby zapisać dane.');
  status.className='rounded-xl p-3 text-sm '+(record?'bg-emerald-50 text-emerald-800':future?'bg-amber-50 text-amber-800':'bg-slate-50 text-slate-600');
