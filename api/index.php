@@ -1275,7 +1275,7 @@ try {
 
         if ($method === 'GET' && isset($parts[1])) {
             $sessionId = (int)$parts[1];
-            $stmt = $pdo->prepare("SELECT * FROM workout_sessions WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT *, TIMESTAMPDIFF(SECOND, started_at, COALESCE(ended_at, NOW())) AS elapsed_seconds FROM workout_sessions WHERE id = ?");
             $stmt->execute([$sessionId]);
             $session = $stmt->fetch();
             if (!$session) out(['error' => 'Nie znaleziono treningu.'], 404);
