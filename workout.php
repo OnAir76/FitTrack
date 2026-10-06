@@ -16,7 +16,7 @@
 <h2 class="text-xl font-black">Podsumowanie treningu</h2><p id="finishIntro" class="mt-1 text-sm text-slate-500"></p><div id="summary" class="mt-4 space-y-2"></div>
 <label id="notesWrap" class="mt-4 block text-sm font-semibold">Notatka z treningu<textarea id="sessionNotes" rows="2" class="mt-1 w-full rounded-xl border p-3 font-normal"></textarea></label>
 <button id="finish" class="mt-4 w-full rounded-2xl bg-emerald-600 p-4 text-lg font-black text-white shadow-sm">Zakończ trening</button>
-<a href="/trainingapp/" class="mt-2 block rounded-2xl border p-3 text-center font-bold">Wróć do strony głównej</a>
+<a href="/trainingapp/index.php" class="mt-2 block rounded-2xl border p-3 text-center font-bold">Wróć do strony głównej</a>
 </section>
 </main>
 <script>
