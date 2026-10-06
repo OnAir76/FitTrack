@@ -6,7 +6,7 @@
 </head>
 <body class="bg-slate-50 text-slate-900">
 <main class="mx-auto max-w-3xl px-4 pb-28 pt-6 space-y-6">
-<header><a class="text-sm font-bold text-slate-500" href="/trainingapp/">← FitTrack</a><h1 class="mt-2 text-3xl font-black">Kalendarz</h1><p class="mt-1 text-slate-500">Wybierz dzień, aby zaplanować trening albo odpoczynek. Kliknij istniejący wpis, aby go edytować.</p></header>
+<header><a class="text-sm font-bold text-slate-500" href="/trainingapp/index.php">← FitTrack</a><h1 class="mt-2 text-3xl font-black">Kalendarz</h1><p class="mt-1 text-slate-500">Wybierz dzień, aby zaplanować trening albo odpoczynek. Kliknij istniejący wpis, aby go edytować.</p></header>
 <section class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 space-y-4">
 <div><h2 class="text-xl font-bold">Kalendarz treningów</h2><p class="text-sm text-slate-500">Pod datą zobaczysz nazwę planu albo informację „Odpoczynek”.</p></div>
 <div class="flex items-center justify-between gap-3"><button id="prevMonth" type="button" class="rounded-xl border px-4 py-2 font-bold" aria-label="Poprzedni miesiąc">←</button><h3 id="monthLabel" class="text-lg font-black capitalize"></h3><button id="nextMonth" type="button" class="rounded-xl border px-4 py-2 font-bold" aria-label="Następny miesiąc">→</button></div>
@@ -28,7 +28,7 @@
 </form>
 </section>
 </main>
-<nav class="fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 backdrop-blur"><div class="mx-auto grid max-w-3xl grid-cols-5 text-center text-xs font-bold"><a class="p-3" href="/trainingapp/">⌂<br>Home</a><a class="p-3 text-slate-900" href="/trainingapp/calendar.php">▦<br>Kalendarz</a><a class="p-3 text-slate-500" href="/trainingapp/workouts.php">◈<br>Treningi</a><a class="p-3 text-slate-500" href="/trainingapp/progress.php">↗<br>Progres</a><a class="p-3 text-slate-500" href="/trainingapp/nutrition.php">◉<br>Dieta</a></div></nav>
+<nav class="fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 backdrop-blur"><div class="mx-auto grid max-w-3xl grid-cols-5 text-center text-xs font-bold"><a class="p-3" href="/trainingapp/index.php">⌂<br>Home</a><a class="p-3 text-slate-900" href="/trainingapp/calendar.php">▦<br>Kalendarz</a><a class="p-3 text-slate-500" href="/trainingapp/workouts.php">◈<br>Treningi</a><a class="p-3 text-slate-500" href="/trainingapp/progress.php">↗<br>Progres</a><a class="p-3 text-slate-500" href="/trainingapp/nutrition.php">◉<br>Dieta</a></div></nav>
 <script>
 const API='/trainingapp/api';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
