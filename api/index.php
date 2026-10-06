@@ -1279,12 +1279,38 @@ try {
             $stmt->execute([$sessionId]);
             $session = $stmt->fetch();
             if (!$session) out(['error' => 'Nie znaleziono treningu.'], 404);
-            $stmt = $pdo->prepare("SELECT wse.*, COALESCE(e.muscle_group, '') AS muscle_group FROM workout_session_exercises wse LEFT JOIN exercises e ON e.id = wse.exercise_id WHERE wse.workout_session_id = ? ORDER BY wse.position");
+            $stmt = $pdo->prepare("SELECT wse.*, COALESCE(e.muscle_group, '') AS muscle_group, COALESCE(e.exercise_type, 'strength') AS exercise_type FROM workout_session_exercises wse LEFT JOIN exercises e ON e.id = wse.exercise_id WHERE wse.workout_session_id = ? ORDER BY wse.position");
             $stmt->execute([$sessionId]);
             $session['exercises'] = $stmt->fetchAll();
+
             $stmt = $pdo->prepare("SELECT wset.* FROM workout_sets wset JOIN workout_session_exercises wse ON wse.id = wset.workout_session_exercise_id WHERE wse.workout_session_id = ? ORDER BY wse.position, wset.set_number");
             $stmt->execute([$sessionId]);
             $session['sets'] = $stmt->fetchAll();
+
+            // Ostatnie wyniki tego samego planu (dla podpowiedzi przy kolejnym treningu).
+            foreach ($session['exercises'] as &$exercise) {
+                $previousStmt = $pdo->prepare("
+                    SELECT ws.id AS session_id, ws.started_at, wset.set_number, wset.weight_kg, wset.reps, wset.rir
+                    FROM workout_sessions ws
+                    JOIN workout_session_exercises prev_ex ON prev_ex.workout_session_id = ws.id
+                    JOIN workout_sets wset ON wset.workout_session_exercise_id = prev_ex.id
+                    WHERE prev_ex.exercise_id = ?
+                      AND ws.id <> ?
+                      AND ws.ended_at IS NOT NULL
+                      AND ws.started_at = (
+                          SELECT MAX(ws2.started_at)
+                          FROM workout_sessions ws2
+                          JOIN workout_session_exercises pe2 ON pe2.workout_session_id = ws2.id
+                          WHERE pe2.exercise_id = prev_ex.exercise_id
+                            AND ws2.id <> ?
+                            AND ws2.ended_at IS NOT NULL
+                      )
+                    ORDER BY wset.set_number
+                ");
+                $previousStmt->execute([$exercise['exercise_id'], $sessionId, $sessionId]);
+                $exercise['previous_sets'] = $previousStmt->fetchAll();
+            }
+            unset($exercise);
             out($session);
         }
     }
