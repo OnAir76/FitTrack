@@ -1333,7 +1333,7 @@ try {
             if (!$validFrom || !$validTo || $validFrom->format('Y-m-d') !== $from || $validTo->format('Y-m-d') !== $to || $from > $to) {
                 out(['error' => 'Nieprawidłowy zakres dat.'], 422);
             }
-            $stmt = $pdo->prepare("SELECT * FROM nutrition_entries WHERE entry_date BETWEEN ? AND ? ORDER BY entry_date ASC");
+            $stmt = $pdo->prepare("SELECT id, entry_date, calories, protein_g, carbs_g, fats_g, burned_calories, notes FROM nutrition_entries WHERE entry_date BETWEEN ? AND ? ORDER BY entry_date ASC");
             $stmt->execute([$from, $to]);
             out($stmt->fetchAll());
         }
