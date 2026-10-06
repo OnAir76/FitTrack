@@ -1359,23 +1359,22 @@ try {
                 (float)($data['protein_g'] ?? 0),
                 (float)($data['carbs_g'] ?? 0),
                 (float)($data['fats_g'] ?? 0),
-                isset($data['steps']) && $data['steps'] !== '' ? (int)$data['steps'] : null,
                 isset($data['burned_calories']) && $data['burned_calories'] !== '' ? (int)$data['burned_calories'] : null,
                 trim((string)($data['notes'] ?? ''))
             ];
-            foreach (array_slice($values, 0, 6) as $value) {
+            foreach (array_slice($values, 0, 5) as $value) {
                 if ($value !== null && (!is_numeric($value) || $value < 0)) {
-                    out(['error' => 'Wartości kalorii, makro, kroków i spalania nie mogą być ujemne.'], 422);
+                    out(['error' => 'Wartości kalorii, makro i spalania nie mogą być ujemne.'], 422);
                 }
             }
 
             if ($existingId !== false) {
-                $stmt = $pdo->prepare("UPDATE nutrition_entries SET calories = ?, protein_g = ?, carbs_g = ?, fats_g = ?, steps = ?, burned_calories = ?, notes = ? WHERE entry_date = ?");
+                $stmt = $pdo->prepare("UPDATE nutrition_entries SET calories = ?, protein_g = ?, carbs_g = ?, fats_g = ?, steps = NULL, burned_calories = ?, notes = ? WHERE entry_date = ?");
                 $stmt->execute([...$values, $date]);
                 out(['message' => 'Wpis żywieniowy został zaktualizowany.', 'updated' => true, 'entry_date' => $date]);
             }
 
-            $stmt = $pdo->prepare("INSERT INTO nutrition_entries (entry_date, calories, protein_g, carbs_g, fats_g, steps, burned_calories, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO nutrition_entries (entry_date, calories, protein_g, carbs_g, fats_g, steps, burned_calories, notes) VALUES (?, ?, ?, ?, ?, NULL, ?, ?)");
             $stmt->execute([$date, ...$values]);
             out(['message' => 'Wpis żywieniowy został zapisany.', 'updated' => false, 'entry_date' => $date], 201);
         }
